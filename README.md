@@ -4,7 +4,7 @@
 
 A lightweight, zero-install Windows GUI tool built for sysadmins and DevOps who need perfect SSL certificates without the hassle.
 
-![AIO SSL Tool](https://github.com/cmdlabtech/aio-ssl-tool/releases/latest)
+[AIO SSL Tool Latest Release](https://github.com/cmdlabtech/aio-ssl-tool/releases/latest)
 
 ### Features
 - Drag & drop certificate and private key
