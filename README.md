@@ -10,7 +10,7 @@ A native macOS application and cross-platform desktop tool built for sysadmins a
 
 | Platform | Download | Requirements |
 |----------|----------|--------------|
-| **🍎 macOS** | [**Download DMG**](https://github.com/cmdlabtech/AIO-SSL-Tool/raw/main/releases/v6.0.2/AIOSSLTool-macOS-v6.0.2.dmg) | macOS 14.0+ (Sonoma/Sequoia) |
+| **🍎 macOS** | [**Download DMG** ⚠️](https://github.com/cmdlabtech/AIO-SSL-Tool/raw/main/releases/v6.0.2/AIOSSLTool-macOS-v6.0.2.dmg) | macOS 14.0+ (Sonoma/Sequoia) |
 | **🪟 Windows** | [**Download EXE**](https://github.com/cmdlabtech/AIO-SSL-Tool/raw/main/releases/v6.0.0/AIOSSLTool-Windows-v6.0.0.exe) | Windows 10/11 |
 
 ### Installation
