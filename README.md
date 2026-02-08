@@ -8,7 +8,7 @@ Now available as a native macOS application and cross-platform desktop tool. Bui
 
 | Platform | Download Link | Type | Notes |
 | :--- | :--- | :--- | :--- |
-| **macOS** | [**Download for macOS**](https://github.com/cmdlabtech/aio-ssl-tool/releases/latest/download/AIOSSLTool-macOS.tar.gz) | Native App | Requires macOS 14.0+ (Sonoma) |
+| **macOS** | [**Download for macOS**](https://github.com/cmdlabtech/aio-ssl-tool/releases/latest/download/AIOSSLTool.dmg) | .dmg | Requires macOS 14.0+ (Sonoma) |
 | **Windows** | [**Download for Windows**](https://github.com/cmdlabtech/aio-ssl-tool/releases/latest/download/AIO-SSL-Tool.exe) | .exe | Single executable, no install needed |
 | **Linux** | [**Download for Linux**](https://github.com/cmdlabtech/aio-ssl-tool/releases/latest/download/AIO-SSL-Tool-Linux) | Binary | Executable, requires Python 3.11+ |
 

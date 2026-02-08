@@ -19,18 +19,65 @@ jobs:
         run: |
           cd macOS/AIOSSLTool
           swift build -c release
-          
-      - name: Create DMG/Zip
+
+      - name: Create .app Bundle
         run: |
-          cd macOS/AIOSSLTool/.build/release
-          # Create a simple zip of the executable for now
-          tar -czf AIOSSLTool-macOS.tar.gz AIOSSLTool
+          cd macOS/AIOSSLTool
+          
+          # Create App Bundle Structure
+          mkdir -p AIOSSLTool.app/Contents/MacOS
+          mkdir -p AIOSSLTool.app/Contents/Resources
+          
+          # Copy Binary
+          cp .build/release/AIOSSLTool AIOSSLTool.app/Contents/MacOS/
+          
+          # Copy Info.plist (ensure it exists or create simple one)
+          if [ -f Info.plist ]; then
+            cp Info.plist AIOSSLTool.app/Contents/
+          else
+            # Fallback (though we created one earlier)
+            echo '<?xml version="1.0" encoding="UTF-8"?>
+            <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+            <plist version="1.0">
+            <dict>
+                <key>CFBundleExecutable</key>
+                <string>AIOSSLTool</string>
+                <key>CFBundleIdentifier</key>
+                <string>com.cmdlab.aiossltool</string>
+                <key>CFBundleName</key>
+                <string>AIO SSL Tool</string>
+                <key>CFBundlePackageType</key>
+                <string>APPL</string>
+                <key>CFBundleShortVersionString</key>
+                <string>6.0</string>
+            </dict>
+            </plist>' > AIOSSLTool.app/Contents/Info.plist
+          fi
+
+      - name: Create DMG
+        run: |
+          cd macOS/AIOSSLTool
+          
+          # Install create-dmg
+          brew install create-dmg
+          
+          # Create DMG
+          create-dmg \
+            --volname "AIO SSL Tool Installer" \
+            --window-pos 200 120 \
+            --window-size 800 400 \
+            --icon-size 100 \
+            --icon "AIOSSLTool.app" 200 190 \
+            --hide-extension "AIOSSLTool.app" \
+            --app-drop-link 600 185 \
+            "AIOSSLTool.dmg" \
+            "AIOSSLTool.app"
           
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
           name: macos-build
-          path: macOS/AIOSSLTool/.build/release/AIOSSLTool-macOS.tar.gz
+          path: macOS/AIOSSLTool/AIOSSLTool.dmg
 
   build-windows:
     name: Build Windows (Python)
@@ -113,7 +160,7 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            artifacts/macos-build/AIOSSLTool-macOS.tar.gz
+            artifacts/macos-build/AIOSSLTool.dmg
             artifacts/windows-build/AIO-SSL-Tool.exe
             artifacts/linux-build/AIO-SSL-Tool-Linux
           generate_release_notes: true
