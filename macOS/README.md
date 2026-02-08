@@ -8,8 +8,20 @@ A modern, native macOS application for SSL certificate management built with Swi
 - **CSR Generation**: Generate Certificate Signing Requests with custom details and SANs
 - **Private Key Management**: Extract private keys from PFX/P12 files
 - **PFX Creation**: Create PFX files from certificates and private keys
+- **Automatic Updates**: Built-in automatic updates powered by Sparkle framework
 - **Native macOS Integration**: Uses macOS Security framework and system keychain
 - **Modern UI**: Built with SwiftUI for a native macOS experience
+
+## Automatic Updates
+
+The app includes seamless automatic updates using the Sparkle framework:
+
+- Updates check automatically in the background
+- One-click installation replaces existing app
+- Configurable in Settings > Updates
+- EdDSA-signed for security
+
+**For Developers**: See [AUTO_UPDATE_QUICKSTART.md](AUTO_UPDATE_QUICKSTART.md) for setup instructions.
 
 ## Requirements
 

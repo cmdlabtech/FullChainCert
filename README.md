@@ -29,8 +29,24 @@ Run the EXE directly. If Windows Defender warns you, click "More info" → "Run 
 - **🔗 Full Chain Building** - Automatically constructs complete certificate chains from server certificates
 - **📦 PFX/P12 Creation** - Build PFX files with full chain and private key
 - **🔓 PFX Extraction** - Extract certificates and private keys from existing PFX files
+- **� Auto-Updates (macOS)** - Seamlessly receive and install updates automatically
 - **🔒 Privacy First** - All processing happens locally on your machine
 - **⚡ Fast & Lightweight** - Native Swift on macOS, efficient Python on Windows
+
+---
+
+## 🔄 Automatic Updates (macOS)
+
+The macOS version includes built-in automatic updates powered by Sparkle:
+
+- **Automatic Checking** - Checks for updates daily in the background
+- **One-Click Install** - Update with a single click, no manual download needed
+- **Seamless Replacement** - New version automatically replaces the old installation
+- **User Control** - Configure automatic checks and downloads in Settings
+
+Updates can be managed in **Settings > Updates** within the app.
+
+For developers: See [Auto-Update Guide](macOS/AUTO_UPDATE_GUIDE.md) for setup instructions.
 
 ---
 

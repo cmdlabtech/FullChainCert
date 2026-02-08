@@ -17,6 +17,8 @@ This directory contains pre-built binaries for AIO SSL Tool.
 3. First launch: Right-click → Open
 4. Requires macOS 14.0+ (Sonoma/Sequoia)
 
+**🔄 Automatic Updates**: The macOS version includes automatic updates! Once installed, the app will notify you when new versions are available and can update itself with one click. No need to manually download future releases.
+
 ### Windows
 1. Download the EXE file
 2. Run directly - no installation required

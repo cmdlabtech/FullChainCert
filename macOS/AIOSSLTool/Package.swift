@@ -14,11 +14,17 @@ let package = Package(
             targets: ["AIOSSLTool"]
         )
     ],
-    dependencies: [],
+    dependencies: [
+        // TODO: Re-enable after setting up proper Xcode project with framework embedding
+        // .package(url: "https://github.com/sparkle-project/Sparkle.git", from: "2.5.0")
+    ],
     targets: [
         .executableTarget(
             name: "AIOSSLTool",
-            dependencies: [],
+            dependencies: [
+                // TODO: Re-enable after setting up proper Xcode project
+                // .product(name: "Sparkle", package: "Sparkle")
+            ],
             path: ".",
             exclude: [
                 "Info.plist",
@@ -33,6 +39,7 @@ let package = Package(
                 "AIOSSLToolApp.swift",
                 "ContentView.swift",
                 "ViewModels/SSLToolViewModel.swift",
+                "ViewModels/UpdaterViewModel.swift",
                 "Models/CSRDetails.swift",
                 "Views/HomeView.swift",
                 "Views/ChainBuilderView.swift",

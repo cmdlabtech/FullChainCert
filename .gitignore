@@ -22,6 +22,10 @@ macOS/AIOSSLTool/*.dmg
 macOS/AIOSSLTool/icon-source.png
 macOS/AIOSSLTool/AppIcon.iconset/
 
+# Sparkle update signing keys (NEVER commit private key!)
+sparkle_eddsa_private.key
+**/*_eddsa_private.key
+
 # IDEs
 .vscode/
 .idea/

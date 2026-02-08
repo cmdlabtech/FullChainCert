@@ -6,6 +6,8 @@
 import SwiftUI
 
 struct SettingsView: View {
+    @StateObject private var updaterViewModel = UpdaterViewModel()
+    
     var body: some View {
         VStack(spacing: 0) {
             HStack {
@@ -32,7 +34,7 @@ struct SettingsView: View {
                             .font(.title)
                             .fontWeight(.bold)
                         
-                        Text("Version 6.0")
+                        Text("Version \(updaterViewModel.currentVersion) (Build \(updaterViewModel.buildNumber))")
                             .font(.headline)
                             .foregroundColor(.secondary)
                             .padding(.horizontal, 12)
@@ -43,6 +45,46 @@ struct SettingsView: View {
                     .padding(.top, 40)
                     
                     VStack(alignment: .leading, spacing: 20) {
+                        // Updates Section
+                        GroupBox(label: Label("Updates", systemImage: "arrow.down.circle")) {
+                            VStack(alignment: .leading, spacing: 12) {
+                                HStack {
+                                    Text("Last checked:")
+                                    Spacer()
+                                    Text(updaterViewModel.formattedLastCheckDate)
+                                        .foregroundColor(.secondary)
+                                }
+                                
+                                Divider()
+                                
+                                Toggle(isOn: $updaterViewModel.automaticUpdateChecks) {
+                                    Text("Check for updates automatically")
+                                }
+                                .onChange(of: updaterViewModel.automaticUpdateChecks) { _ in
+                                    updaterViewModel.toggleAutomaticUpdates()
+                                }
+                                
+                                Toggle(isOn: $updaterViewModel.automaticDownload) {
+                                    Text("Download updates automatically")
+                                }
+                                .onChange(of: updaterViewModel.automaticDownload) { _ in
+                                    updaterViewModel.toggleAutomaticDownload()
+                                }
+                                
+                                Divider()
+                                
+                                Button(action: {
+                                    updaterViewModel.checkForUpdates()
+                                }) {
+                                    Label("Check for Updates", systemImage: "arrow.clockwise")
+                                        .frame(maxWidth: .infinity)
+                                }
+                                .buttonStyle(.borderedProminent)
+                                .disabled(!updaterViewModel.canCheckForUpdates)
+                            }
+                            .padding()
+                        }
+                        
                         GroupBox(label: Label("About", systemImage: "info.circle")) {
                             VStack(alignment: .leading, spacing: 10) {
                                 Text("A modern, native macOS application for SSL certificate management.")

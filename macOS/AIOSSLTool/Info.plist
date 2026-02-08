@@ -19,7 +19,7 @@
     <key>CFBundlePackageType</key>
     <string>APPL</string>
     <key>CFBundleShortVersionString</key>
-    <string>6.0.0</string>
+    <string>6.0.2</string>
     <key>CFBundleVersion</key>
     <string>6</string>
     <key>LSMinimumSystemVersion</key>
@@ -39,5 +39,13 @@
         <key>NSAllowsArbitraryLoads</key>
         <false/>
     </dict>
+    <key>SUFeedURL</key>
+    <string>https://raw.githubusercontent.com/cmdlabtech/AIO-SSL-Tool/main/appcast.xml</string>
+    <key>SUEnableAutomaticChecks</key>
+    <true/>
+    <key>SUScheduledCheckInterval</key>
+    <integer>86400</integer>
+    <key>SUPublicEDKey</key>
+    <string>eDQF3UbGTMvZWQAy2cRyNj28boNE/ntaqLgyZ1AL60E=</string>
 </dict>
 </plist>
