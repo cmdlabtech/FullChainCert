@@ -1,0 +1,119 @@
+name: Build and Release
+
+on:
+  push:
+    branches: [ "main", "master" ]
+    tags:
+      - 'v*'
+  pull_request:
+    branches: [ "main", "master" ]
+
+jobs:
+  build-macos:
+    name: Build macOS (Native Swift)
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Build
+        run: |
+          cd macOS/AIOSSLTool
+          swift build -c release
+          
+      - name: Create DMG/Zip
+        run: |
+          cd macOS/AIOSSLTool/.build/release
+          # Create a simple zip of the executable for now
+          tar -czf AIOSSLTool-macOS.tar.gz AIOSSLTool
+          
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-build
+          path: macOS/AIOSSLTool/.build/release/AIOSSLTool-macOS.tar.gz
+
+  build-windows:
+    name: Build Windows (Python)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyinstaller
+          pip install -r python/requirements.txt
+          
+      - name: Build with PyInstaller
+        run: |
+          # If icon exists, use it. If not, skip icon.
+          if (Test-Path python/icon-ico.ico) {
+            pyinstaller --clean --onefile --noconsole --name "AIO-SSL-Tool" --icon "python/icon-ico.ico" python/aio_ssl_tool.py
+          } else {
+            pyinstaller --clean --onefile --noconsole --name "AIO-SSL-Tool" python/aio_ssl_tool.py
+          }
+          
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-build
+          path: dist/AIO-SSL-Tool.exe
+
+  build-linux:
+    name: Build Linux (Python)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyinstaller
+          pip install -r python/requirements.txt
+          # Linux specific tkinter requirement usually needed on Ubuntu runner
+          sudo apt-get update
+          sudo apt-get install -y python3-tk
+          
+      - name: Build with PyInstaller
+        run: |
+          pyinstaller --clean --onefile --noconsole --name "AIO-SSL-Tool-Linux" python/aio_ssl_tool.py
+          
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-build
+          path: dist/AIO-SSL-Tool-Linux
+
+  release:
+    name: Create Release
+    needs: [build-macos, build-windows, build-linux]
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          
+      - name: Display structure of downloaded files
+        run: ls -R artifacts
+        
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            artifacts/macos-build/AIOSSLTool-macOS.tar.gz
+            artifacts/windows-build/AIO-SSL-Tool.exe
+            artifacts/linux-build/AIO-SSL-Tool-Linux
+          generate_release_notes: true

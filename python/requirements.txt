@@ -1,0 +1,4 @@
+customtkinter
+cryptography
+requests
+wincertstore; platform_system=="Windows"

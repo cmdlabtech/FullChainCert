@@ -226,7 +226,7 @@ class AIOSSLToolApp:
         file_menu.add_command(label="Extract Private Key from PFX/P12", command=self.open_extract_dialog)
         menu.add_cascade(label="File", menu=file_menu)
         about_menu = Menu(menu, tearoff=0)
-        about_menu.add_command(label="Version: v5.6", state="disabled")
+        about_menu.add_command(label="Version: v6.0", state="disabled")
         menu.add_cascade(label="About", menu=about_menu)
     def open_csr_dialog(self):
         if not self.save_directory:

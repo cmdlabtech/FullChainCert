@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.env
+
+# MacOS / Swift
+.DS_Store
+.build/
+.swiftpm/
+*.xcodeproj
+*.xcworkspace
+xcuserdata/
+
+# IDEs
+.vscode/
+.idea/
+
+# Builds
+dist/
+build/
+*.spec
