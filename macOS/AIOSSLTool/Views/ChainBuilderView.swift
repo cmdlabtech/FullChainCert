@@ -48,41 +48,89 @@ struct ChainBuilderView: View {
                         ContentUnavailableView {
                             Label("Select working directory", systemImage: "folder.badge.plus")
                         } description: {
-                            Text("Start by choosing where to save your certificates.")
-                            Button("Select Directory", action: { viewModel.selectSaveDirectory() })
-                                .buttonStyle(.borderedProminent)
-                                .padding(.top)
+                            Text("Go to Home and set your working directory first.")
                         }
                         .frame(height: 300)
                     } else {
                         // Main Workflow Card
                         LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 20) {
                             
-                            // Input Card
+                            // Input Card - Show files from directory
                             WorkflowCard(title: "Certificate", icon: "certificate", color: .blue) {
                                 VStack(alignment: .leading, spacing: 10) {
                                     if let cert = viewModel.certificateFile {
                                         HStack {
                                             Image(systemName: "checkmark.circle.fill")
                                                 .foregroundColor(.green)
-                                            Text(cert.lastPathComponent)
-                                                .font(.headline)
-                                        }
-                                        Text("Loaded")
+                                            VStack(alignment: .leading) {
+                                                Text(cert.lastPathComponent)
+                                                    .font(.headline)
+                                                Text("Selected")
+                                                    .font(.caption)
+                                                    .foregroundColor(.secondary)
+                                            }
+                                            Spacer()
+                                            Button("Change") {
+                                                viewModel.certificateFile = nil
+                                            }
+                                            .buttonStyle(.link)
                                             .font(.caption)
-                                            .foregroundColor(.secondary)
+                                        }
                                     } else {
-                                        Button(action: { viewModel.browseCertificate() }) {
-                                            VStack {
-                                                Image(systemName: "arrow.up.doc")
-                                                    .font(.largeTitle)
-                                                Text("Select Certificate")
+                                        if viewModel.workingDirectoryFiles.isEmpty {
+                                            VStack(spacing: 12) {
+                                                Text("No certificate files found")
+                                                    .font(.caption)
+                                                    .foregroundColor(.secondary)
+                                                Button(action: { viewModel.browseCertificate() }) {
+                                                    HStack {
+                                                        Image(systemName: "arrow.up.doc")
+                                                        Text("Browse Files")
+                                                    }
+                                                }
+                                                .buttonStyle(.bordered)
                                             }
                                             .frame(maxWidth: .infinity, minHeight: 100)
                                             .background(Color.secondary.opacity(0.1))
                                             .cornerRadius(8)
+                                        } else {
+                                            VStack(alignment: .leading, spacing: 8) {
+                                                Text("Select a certificate file:")
+                                                    .font(.caption)
+                                                    .foregroundColor(.secondary)
+                                                
+                                                ScrollView {
+                                                    VStack(spacing: 4) {
+                                                        ForEach(viewModel.workingDirectoryFiles, id: \.self) { file in
+                                                            Button(action: {
+                                                                viewModel.selectCertificateFromDirectory(file)
+                                                            }) {
+                                                                HStack {
+                                                                    Image(systemName: fileIcon(for: file))
+                                                                        .foregroundColor(fileColor(for: file))
+                                                                    Text(file.lastPathComponent)
+                                                                        .font(.system(.body, design: .monospaced))
+                                                                        .lineLimit(1)
+                                                                    Spacer()
+                                                                }
+                                                                .padding(.horizontal, 8)
+                                                                .padding(.vertical, 6)
+                                                                .background(Color.secondary.opacity(0.1))
+                                                                .cornerRadius(6)
+                                                            }
+                                                            .buttonStyle(.plain)
+                                                        }
+                                                    }
+                                                }
+                                                .frame(maxHeight: 150)
+                                                
+                                                Button("Browse Other Files") {
+                                                    viewModel.browseCertificate()
+                                                }
+                                                .buttonStyle(.link)
+                                                .font(.caption)
+                                            }
                                         }
-                                        .buttonStyle(.plain)
                                     }
                                 }
                             }
@@ -186,6 +234,41 @@ struct ChainBuilderView: View {
             Button("OK") { }
         } message: {
             Text(viewModel.errorMessage)
+        }
+        .onAppear {
+            viewModel.loadWorkingDirectoryFiles()
+        }
+    }
+    
+    func fileIcon(for url: URL) -> String {
+        let ext = url.pathExtension.lowercased()
+        switch ext {
+        case "cer", "crt", "pem", "der", "cert":
+            return "doc.badge.ellipsis"
+        case "key":
+            return "key.fill"
+        case "pfx", "p12":
+            return "lock.doc.fill"
+        case "p7b":
+            return "doc.text.fill"
+        default:
+            return "doc.fill"
+        }
+    }
+    
+    func fileColor(for url: URL) -> Color {
+        let ext = url.pathExtension.lowercased()
+        switch ext {
+        case "cer", "crt", "pem", "der", "cert":
+            return .blue
+        case "key":
+            return .purple
+        case "pfx", "p12":
+            return .pink
+        case "p7b":
+            return .orange
+        default:
+            return .gray
         }
     }
     

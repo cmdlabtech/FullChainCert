@@ -34,11 +34,15 @@ let package = Package(
                 "ContentView.swift",
                 "ViewModels/SSLToolViewModel.swift",
                 "Models/CSRDetails.swift",
+                "Views/HomeView.swift",
                 "Views/ChainBuilderView.swift",
                 "Views/CSRGenerationView.swift",
                 "Views/ExtractPFXView.swift",
                 "Views/SettingsView.swift",
                 "Utils/CertificateUtils.swift"
+            ],
+            resources: [
+                .process("HomeIcon.png")
             ],
             swiftSettings: [
                 .unsafeFlags(["-parse-as-library"])

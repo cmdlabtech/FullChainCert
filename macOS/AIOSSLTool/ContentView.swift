@@ -7,9 +7,10 @@ import SwiftUI
 
 struct ContentView: View {
     @StateObject private var viewModel = SSLToolViewModel()
-    @State private var selectedTool: Tool? = .chainBuilder
+    @State private var selectedTool: Tool? = .home
     
     enum Tool: String, CaseIterable, Identifiable {
+        case home = "Home"
         case chainBuilder = "Chain Builder"
         case csrGenerator = "CSR Generator"
         case keyExtractor = "Key Extractor"
@@ -18,6 +19,7 @@ struct ContentView: View {
         var id: String { rawValue }
         var icon: String {
             switch self {
+            case .home: return "house.fill"
             case .chainBuilder: return "link.circle.fill"
             case .csrGenerator: return "doc.badge.plus"
             case .keyExtractor: return "key.fill"
@@ -35,20 +37,15 @@ struct ContentView: View {
                         .font(.system(size: 14, weight: .medium))
                 }
             }
-            .navigationSplitViewColumnWidth(min: 200, ideal: 220)
+            .navigationSplitViewColumnWidth(min: 200, ideal: 220, max: 250)
             .listStyle(.sidebar)
             .navigationTitle("SSL Suite")
         } detail: {
-            ZStack {
-                // Background Gradient
-                LinearGradient(colors: [
-                    Color(NSColor.windowBackgroundColor),
-                    Color(NSColor.controlBackgroundColor)
-                ], startPoint: .top, endPoint: .bottom)
-                .ignoresSafeArea()
-
+            Group {
                 if let tool = selectedTool {
                     switch tool {
+                    case .home:
+                        HomeView(viewModel: viewModel)
                     case .chainBuilder:
                         ChainBuilderView(viewModel: viewModel)
                     case .csrGenerator:
@@ -62,6 +59,7 @@ struct ContentView: View {
                     ContentUnavailableView("Select a Tool", systemImage: "wrench.and.screwdriver")
                 }
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
         .preferredColorScheme(.dark)
         .frame(minWidth: 900, minHeight: 600)

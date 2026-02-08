@@ -24,6 +24,7 @@ class SSLToolViewModel: ObservableObject {
     @Published var showingSuccess: Bool = false
     @Published var errorMessage: String = ""
     @Published var successMessage: String = ""
+    @Published var workingDirectoryFiles: [URL] = []
     
     var canCreatePFX: Bool {
         privateKeyFile != nil && fullChainCreated && !pfxPassphrase.isEmpty
@@ -40,7 +41,40 @@ class SSLToolViewModel: ObservableObject {
             saveDirectory = panel.url
             statusMessage = "Save location set"
             hasError = false
+            loadWorkingDirectoryFiles()
         }
+    }
+    
+    func loadWorkingDirectoryFiles() {
+        guard let directory = saveDirectory else {
+            workingDirectoryFiles = []
+            return
+        }
+        
+        do {
+            let fileManager = FileManager.default
+            let files = try fileManager.contentsOfDirectory(
+                at: directory,
+                includingPropertiesForKeys: [.isRegularFileKey],
+                options: [.skipsHiddenFiles]
+            )
+            
+            // Filter for certificate files (common extensions)
+            let certificateExtensions = ["cer", "crt", "pem", "der", "cert", "key", "pfx", "p12", "p7b"]
+            workingDirectoryFiles = files.filter { url in
+                let pathExtension = url.pathExtension.lowercased()
+                return certificateExtensions.contains(pathExtension)
+            }.sorted { $0.lastPathComponent < $1.lastPathComponent }
+        } catch {
+            workingDirectoryFiles = []
+            print("Error loading directory files: \(error)")
+        }
+    }
+    
+    func selectCertificateFromDirectory(_ url: URL) {
+        certificateFile = url
+        statusMessage = "Certificate loaded"
+        hasError = false
     }
     
     func browseCertificate() {
