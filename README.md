@@ -6,7 +6,7 @@ A native macOS application and cross-platform desktop tool built for sysadmins a
 
 ---
 
-## 📥 Download Latest Version (v6.0.0)
+## 📥 Download Latest Version (v6.0.1)
 
 | Platform | Download | Requirements |
 |----------|----------|--------------|
