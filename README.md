@@ -18,8 +18,32 @@ Now available as a native macOS application and cross-platform desktop tool. Bui
 **macOS:**
 1. Download and open the DMG file
 2. Drag "AIO SSL Tool" to your Applications folder
-3. First launch: Right-click the app → "Open" → Click "Open" in the dialog
-4. Subsequent launches: Open normally from Applications
+3. **First launch** (the app is unsigned, so macOS Gatekeeper will block it):
+   
+   **Method 1 - Right-click Open (Recommended):**
+   - Right-click (or Control-click) on "AIO SSL Tool" in Applications
+   - Select "Open" from the menu
+   - Click "Open" in the security dialog that appears
+   - The app will now launch and be trusted for future use
+   
+   **Method 2 - System Settings (if you see "app is damaged" error):**
+   - Try to open the app normally (it will be blocked)
+   - Go to **System Settings** → **Privacy & Security**
+   - Scroll down to the **Security** section
+   - You'll see a message: *"AIO SSL Tool" was blocked from use because it is not from an identified developer*
+   - Click **"Open Anyway"** button next to this message
+   - Confirm by clicking **"Open"** in the dialog
+   - The app will launch and be permanently allowed
+   
+   **Method 3 - Terminal (for advanced users):**
+   ```bash
+   xattr -cr "/Applications/AIO SSL Tool.app"
+   open "/Applications/AIO SSL Tool.app"
+   ```
+
+4. **Subsequent launches:** Open normally from Applications or Launchpad
+
+> **Why is this necessary?** The app is ad-hoc signed (free, no Apple Developer account required) rather than notarized by Apple. This is safe but requires manual approval on first launch.
 
 **Windows:**
 1. Download the EXE file
