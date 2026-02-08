@@ -36,3 +36,13 @@ build/
 *.log
 *.tmp
 .pytest_cache/
+
+# Files to ignore
+icon.ico
+*.ico
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.icns
+new-icon.*
