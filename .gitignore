@@ -25,6 +25,10 @@ macOS/AIOSSLTool/*.dmg
 macOS/AIOSSLTool/icon-source.png
 macOS/AIOSSLTool/AppIcon.iconset/
 
+# Release artifacts (DMGs hosted on GitHub Releases)
+releases/*/*.dmg
+*.dmg
+
 # Sparkle update signing keys (NEVER commit private key!)
 sparkle_eddsa_private.key
 **/*_eddsa_private.key

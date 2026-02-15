@@ -1,13 +1,18 @@
 # Releases
 
-This directory contains pre-built binaries for AIO SSL Tool.
+This directory contains release notes and metadata for AIO SSL Tool releases.
 
-## Current Version: v6.0.0
+## Current Version: v6.0.4
 
 ### Download Links
 
-- **macOS**: [AIOSSLTool-macOS-v6.0.0.dmg](v6.0.0/AIOSSLTool-macOS-v6.0.0.dmg) (1.5 MB)
-- **Windows**: [AIOSSLTool-Windows-v6.0.0.exe](v6.0.0/AIOSSLTool-Windows-v6.0.0.exe) (18 MB)
+**All releases are available on the [GitHub Releases page](https://github.com/cmdlabtech/AIO-SSL-Tool/releases)**
+
+- **macOS v6.0.4**: [Download DMG](https://github.com/cmdlabtech/AIO-SSL-Tool/releases/download/v6.0.4/AIOSSLTool-macOS-v6.0.4.dmg)
+- **macOS v6.0.2**: [Download DMG](https://github.com/cmdlabtech/AIO-SSL-Tool/releases/download/v6.0.2/AIOSSLTool-macOS-v6.0.2.dmg)
+- **macOS v6.0.0**: [Download DMG](https://github.com/cmdlabtech/AIO-SSL-Tool/releases/download/v6.0.0/AIOSSLTool-macOS-v6.0.0.dmg)
+
+> **Note:** DMG files are not stored in this repository to keep it lightweight. Download them from GitHub Releases.
 
 ## Installation
 
