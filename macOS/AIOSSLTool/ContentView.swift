@@ -11,8 +11,9 @@ struct ContentView: View {
     
     enum Tool: String, CaseIterable, Identifiable {
         case home = "Home"
-        case chainBuilder = "Chain Builder"
         case csrGenerator = "CSR Generator"
+        case chainBuilder = "Chain Builder"
+        case pfxGenerator = "PFX Generator"
         case keyExtractor = "Key Extractor"
         case settings = "Settings"
         
@@ -20,8 +21,9 @@ struct ContentView: View {
         var icon: String {
             switch self {
             case .home: return "house.fill"
-            case .chainBuilder: return "link.circle.fill"
             case .csrGenerator: return "doc.badge.plus"
+            case .chainBuilder: return "link.circle.fill"
+            case .pfxGenerator: return "shippingbox.fill"
             case .keyExtractor: return "key.fill"
             case .settings: return "gearshape.fill"
             }
@@ -46,10 +48,12 @@ struct ContentView: View {
                     switch tool {
                     case .home:
                         HomeView(viewModel: viewModel)
-                    case .chainBuilder:
-                        ChainBuilderView(viewModel: viewModel)
                     case .csrGenerator:
                         CSRGenerationView(viewModel: viewModel)
+                    case .chainBuilder:
+                        ChainBuilderView(viewModel: viewModel)
+                    case .pfxGenerator:
+                        PFXGeneratorView(viewModel: viewModel)
                     case .keyExtractor:
                         ExtractPFXView(viewModel: viewModel)
                     case .settings:

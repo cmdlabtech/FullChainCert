@@ -242,14 +242,14 @@ class SSLToolViewModel: ObservableObject {
         }
     }
     
-    private func showError(_ message: String) {
+    func showError(_ message: String) {
         errorMessage = message
         statusMessage = "Error"
         hasError = true
         showingError = true
     }
     
-    private func showSuccess(_ message: String) {
+    func showSuccess(_ message: String) {
         successMessage = message
         showingSuccess = true
     }

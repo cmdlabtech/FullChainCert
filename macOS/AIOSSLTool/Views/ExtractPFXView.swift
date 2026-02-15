@@ -24,6 +24,14 @@ struct ExtractPFXView: View {
                         .foregroundColor(.secondary)
                 }
                 Spacer()
+                
+                Button(action: clearFields) {
+                    Text("Clear")
+                        .font(.body)
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.regular)
+                .disabled(pfxPath == nil && savePath == nil && password.isEmpty)
             }
             .padding()
             .background(.thinMaterial)
@@ -121,6 +129,16 @@ struct ExtractPFXView: View {
                 .padding(40)
             }
         }
+        .alert("Error", isPresented: $viewModel.showingError) {
+            Button("OK") { }
+        } message: {
+            Text(viewModel.errorMessage)
+        }
+        .alert("Success", isPresented: $viewModel.showingSuccess) {
+            Button("OK") { }
+        } message: {
+            Text(viewModel.successMessage)
+        }
     }
     
     private func selectPFXFile() {
@@ -155,6 +173,12 @@ struct ExtractPFXView: View {
     private func extractKey() {
         guard let pfx = pfxPath, let save = savePath else { return }
         viewModel.extractPrivateKey(pfxPath: pfx, password: password, savePath: save)
+    }
+    
+    private func clearFields() {
+        pfxPath = nil
+        password = ""
+        savePath = nil
     }
     
     // Helper for dashed border

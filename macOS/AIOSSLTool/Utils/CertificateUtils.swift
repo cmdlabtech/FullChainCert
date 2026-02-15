@@ -270,54 +270,263 @@ enum CertificateUtils {
     // MARK: - PFX Operations
     
     static func createPFX(certificates: [Certificate], privateKeyData: Data, keyPassword: String?, pfxPassword: String) throws -> Data {
-        // Parse private key
-        let privateKeyPEM = String(data: privateKeyData, encoding: .utf8) ?? ""
-        guard let keyData = extractPrivateKeyData(from: privateKeyPEM) else {
-            throw SSLError.invalidCertificate
+        let tempDir = NSTemporaryDirectory()
+        let uuid = UUID().uuidString
+        let certPath = (tempDir as NSString).appendingPathComponent("temp_\(uuid).crt")
+        let keyPath = (tempDir as NSString).appendingPathComponent("temp_\(uuid).key")
+        let pfxPath = (tempDir as NSString).appendingPathComponent("temp_\(uuid).pfx")
+        let keyPassFilePath = (tempDir as NSString).appendingPathComponent("temp_\(uuid)_keypass.txt")
+        let pfxPassFilePath = (tempDir as NSString).appendingPathComponent("temp_\(uuid)_pfxpass.txt")
+        
+        defer {
+            // Clean up temporary files
+            try? FileManager.default.removeItem(atPath: certPath)
+            try? FileManager.default.removeItem(atPath: keyPath)
+            try? FileManager.default.removeItem(atPath: pfxPath)
+            try? FileManager.default.removeItem(atPath: keyPassFilePath)
+            try? FileManager.default.removeItem(atPath: pfxPassFilePath)
         }
         
-        // In production, you'd use Security framework's SecPKCS12Import/Export
-        // This is a simplified placeholder
+        // Write certificate chain to file
+        let chainPEM = certificates.map { $0.pemRepresentation }.joined(separator: "\n")
+        try chainPEM.write(to: URL(fileURLWithPath: certPath), atomically: true, encoding: .utf8)
         
-        // For actual implementation, use:
-        let options: [String: Any] = [
-            kSecImportExportPassphrase as String: pfxPassword
+        // Write private key to file
+        try privateKeyData.write(to: URL(fileURLWithPath: keyPath))
+        
+        // Write PFX password to file
+        try pfxPassword.write(to: URL(fileURLWithPath: pfxPassFilePath), atomically: true, encoding: .utf8)
+        
+        // Build OpenSSL command
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: "/usr/bin/openssl")
+        
+        var arguments = [
+            "pkcs12",
+            "-export",
+            "-out", pfxPath,
+            "-inkey", keyPath,
+            "-in", certPath,
+            "-passout", "file:\(pfxPassFilePath)"
         ]
         
-        // Create PKCS#12 data
-        // Note: Full implementation requires proper PKCS#12 encoding
-        // For production use, consider using OpenSSL or a dedicated library
+        // Add key password if provided
+        if let keyPass = keyPassword, !keyPass.isEmpty {
+            try keyPass.write(to: URL(fileURLWithPath: keyPassFilePath), atomically: true, encoding: .utf8)
+            arguments.append(contentsOf: ["-passin", "file:\(keyPassFilePath)"])
+        } else {
+            arguments.append(contentsOf: ["-passin", "pass:"])
+        }
         
-        throw SSLError.pfxCreationFailed
+        process.arguments = arguments
+        
+        let pipe = Pipe()
+        let errorPipe = Pipe()
+        process.standardOutput = pipe
+        process.standardError = errorPipe
+        
+        do {
+            try process.run()
+            process.waitUntilExit()
+            
+            if process.terminationStatus != 0 {
+                let errorData = errorPipe.fileHandleForReading.readDataToEndOfFile()
+                let errorString = String(data: errorData, encoding: .utf8) ?? "Unknown error"
+                
+                throw NSError(
+                    domain: "CertificateUtils",
+                    code: Int(process.terminationStatus),
+                    userInfo: [NSLocalizedDescriptionKey: "Failed to create PFX file: \(errorString)"]
+                )
+            }
+            
+            // Read the created PFX file
+            guard FileManager.default.fileExists(atPath: pfxPath),
+                  let pfxData = try? Data(contentsOf: URL(fileURLWithPath: pfxPath)) else {
+                throw NSError(
+                    domain: "CertificateUtils",
+                    code: -1,
+                    userInfo: [NSLocalizedDescriptionKey: "Failed to read created PFX file."]
+                )
+            }
+            
+            return pfxData
+            
+        } catch let error as NSError where error.domain == "CertificateUtils" {
+            throw error
+        } catch {
+            throw NSError(
+                domain: "CertificateUtils",
+                code: -1,
+                userInfo: [NSLocalizedDescriptionKey: "Failed to execute OpenSSL: \(error.localizedDescription)"]
+            )
+        }
     }
     
     static func extractPrivateKey(from pfxData: Data, password: String) throws -> String {
-        var items: CFArray?
-        let options = [kSecImportExportPassphrase as String: password] as CFDictionary
+        // Use OpenSSL command-line tool for extraction
+        // This bypasses Security framework restrictions and works with any PKCS#12 file
+        return try extractPrivateKeyWithOpenSSL(pfxData: pfxData, password: password)
+    }
+    
+    private static func extractPrivateKeyWithOpenSSL(pfxData: Data, password: String) throws -> String {
+        let tempDir = NSTemporaryDirectory()
+        let uuid = UUID().uuidString
+        let pfxPath = (tempDir as NSString).appendingPathComponent("temp_\(uuid).pfx")
+        let keyPath = (tempDir as NSString).appendingPathComponent("temp_\(uuid).key")
+        let passFilePath = (tempDir as NSString).appendingPathComponent("temp_\(uuid).pass")
         
-        let status = SecPKCS12Import(pfxData as CFData, options, &items)
-        
-        guard status == errSecSuccess,
-              let itemsArray = items as? [[String: Any]],
-              let firstItem = itemsArray.first,
-              let identity = firstItem[kSecImportItemIdentity as String] else {
-            throw SSLError.invalidCertificate
+        defer {
+            // Clean up temporary files
+            try? FileManager.default.removeItem(atPath: pfxPath)
+            try? FileManager.default.removeItem(atPath: keyPath)
+            try? FileManager.default.removeItem(atPath: passFilePath)
         }
         
+        // Write PFX data to temporary file
+        try pfxData.write(to: URL(fileURLWithPath: pfxPath))
+        
+        // Write password to file for secure passing to OpenSSL
+        try password.write(to: URL(fileURLWithPath: passFilePath), atomically: true, encoding: .utf8)
+        
+        // Use OpenSSL to extract private key
+        // -nodes means no encryption on output (plain text PEM)
+        // -passin file: reads password from file
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: "/usr/bin/openssl")
+        process.arguments = [
+            "pkcs12",
+            "-in", pfxPath,
+            "-nocerts",
+            "-nodes",
+            "-passin", "file:\(passFilePath)",
+            "-out", keyPath
+        ]
+        
+        let pipe = Pipe()
+        let errorPipe = Pipe()
+        process.standardOutput = pipe
+        process.standardError = errorPipe
+        
+        do {
+            try process.run()
+            process.waitUntilExit()
+            
+            if process.terminationStatus != 0 {
+                let errorData = errorPipe.fileHandleForReading.readDataToEndOfFile()
+                let errorString = String(data: errorData, encoding: .utf8) ?? "Unknown error"
+                
+                if errorString.contains("invalid password") || errorString.contains("bad password") {
+                    throw NSError(
+                        domain: "CertificateUtils",
+                        code: Int(errSecAuthFailed),
+                        userInfo: [NSLocalizedDescriptionKey: "Incorrect password for PFX file."]
+                    )
+                } else {
+                    throw NSError(
+                        domain: "CertificateUtils",
+                        code: Int(process.terminationStatus),
+                        userInfo: [NSLocalizedDescriptionKey: "OpenSSL extraction failed: \(errorString)"]
+                    )
+                }
+            }
+            
+            // Read the extracted key
+            guard FileManager.default.fileExists(atPath: keyPath),
+                  let keyData = try? Data(contentsOf: URL(fileURLWithPath: keyPath)),
+                  let keyPEM = String(data: keyData, encoding: .utf8) else {
+                throw NSError(
+                    domain: "CertificateUtils",
+                    code: -1,
+                    userInfo: [NSLocalizedDescriptionKey: "Failed to read extracted private key."]
+                )
+            }
+            
+            // Clean up and return the key
+            return keyPEM.trimmingCharacters(in: .whitespacesAndNewlines)
+            
+        } catch let error as NSError where error.domain == "CertificateUtils" {
+            throw error
+        } catch {
+            throw NSError(
+                domain: "CertificateUtils",
+                code: -1,
+                userInfo: [NSLocalizedDescriptionKey: "Failed to execute OpenSSL: \(error.localizedDescription)"]
+            )
+        }
+    }
+    
+    private static func extractPrivateKeyDirect(pfxData: Data, password: String) throws -> String {
+        // Direct extraction without temporary keychain
+        var items: CFArray?
+        let importOptions = [kSecImportExportPassphrase as String: password] as CFDictionary
+        
+        let status = SecPKCS12Import(pfxData as CFData, importOptions, &items)
+        
+        guard status == errSecSuccess else {
+            if status == errSecAuthFailed {
+                throw NSError(
+                    domain: NSOSStatusErrorDomain,
+                    code: Int(status),
+                    userInfo: [NSLocalizedDescriptionKey: "Incorrect password for PFX file."]
+                )
+            } else {
+                throw NSError(
+                    domain: NSOSStatusErrorDomain,
+                    code: Int(status),
+                    userInfo: [NSLocalizedDescriptionKey: "Failed to import PFX file. Status: \(status)"]
+                )
+            }
+        }
+        
+        guard let itemsArray = items as? [[String: Any]],
+              let firstItem = itemsArray.first,
+              let identityRef = firstItem[kSecImportItemIdentity as String] else {
+            throw NSError(
+                domain: NSOSStatusErrorDomain,
+                code: Int(errSecInvalidKeyAttributeMask),
+                userInfo: [NSLocalizedDescriptionKey: "No identity found in PFX file."]
+            )
+        }
+        
+        let identity = identityRef as! SecIdentity
+        
+        // Extract the private key from identity
         var privateKey: SecKey?
-        let keyStatus = SecIdentityCopyPrivateKey(identity as! SecIdentity, &privateKey)
+        let keyStatus = SecIdentityCopyPrivateKey(identity, &privateKey)
         
         guard keyStatus == errSecSuccess, let key = privateKey else {
-            throw SSLError.invalidCertificate
+            throw NSError(
+                domain: NSOSStatusErrorDomain,
+                code: Int(keyStatus),
+                userInfo: [NSLocalizedDescriptionKey: "Failed to extract private key from identity."]
+            )
         }
         
+        // Try direct export
         var error: Unmanaged<CFError>?
         guard let keyData = SecKeyCopyExternalRepresentation(key, &error) as Data? else {
-            throw error?.takeRetainedValue() ?? SSLError.invalidCertificate
+            let errorDescription = error?.takeRetainedValue().localizedDescription ?? "Unknown error"
+            throw NSError(
+                domain: NSOSStatusErrorDomain,
+                code: Int(errSecInvalidKeyAttributeMask),
+                userInfo: [NSLocalizedDescriptionKey: "Unable to export private key: \(errorDescription). The key may have non-exportable attributes."]
+            )
         }
         
+        // Determine key type
+        let keyAttributes = SecKeyCopyAttributes(key) as? [String: Any]
+        let keyType = keyAttributes?[kSecAttrKeyType as String] as? String
+        
         let base64 = keyData.base64EncodedString(options: [.lineLength64Characters, .endLineWithLineFeed])
-        return "-----BEGIN PRIVATE KEY-----\n\(base64)\n-----END PRIVATE KEY-----"
+        
+        if keyType as CFString? == kSecAttrKeyTypeRSA {
+            return "-----BEGIN RSA PRIVATE KEY-----\n\(base64)\n-----END RSA PRIVATE KEY-----"
+        } else if keyType as CFString? == kSecAttrKeyTypeEC || keyType as CFString? == kSecAttrKeyTypeECSECPrimeRandom {
+            return "-----BEGIN EC PRIVATE KEY-----\n\(base64)\n-----END EC PRIVATE KEY-----"
+        } else {
+            return "-----BEGIN PRIVATE KEY-----\n\(base64)\n-----END PRIVATE KEY-----"
+        }
     }
     
     private static func extractPrivateKeyData(from pem: String) -> Data? {

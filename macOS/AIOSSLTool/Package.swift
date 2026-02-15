@@ -44,6 +44,7 @@ let package = Package(
                 "Views/HomeView.swift",
                 "Views/ChainBuilderView.swift",
                 "Views/CSRGenerationView.swift",
+                "Views/PFXGeneratorView.swift",
                 "Views/ExtractPFXView.swift",
                 "Views/SettingsView.swift",
                 "Utils/CertificateUtils.swift"

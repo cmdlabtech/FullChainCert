@@ -102,6 +102,16 @@ struct CSRGenerationView: View {
                 }
             }
         }
+        .alert("Error", isPresented: $viewModel.showingError) {
+            Button("OK") { }
+        } message: {
+            Text(viewModel.errorMessage)
+        }
+        .alert("Success", isPresented: $viewModel.showingSuccess) {
+            Button("OK") { }
+        } message: {
+            Text(viewModel.successMessage)
+        }
     }
     
     private func generateCSR() {

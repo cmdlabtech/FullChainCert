@@ -16,7 +16,7 @@ struct ChainBuilderView: View {
                     Text("Chain Builder")
                         .font(.largeTitle)
                         .fontWeight(.bold)
-                    Text("Build complete certificate chains and create PFX files")
+                    Text("Build complete certificate chains from leaf certificates")
                         .foregroundColor(.secondary)
                 }
                 Spacer()
@@ -163,63 +163,6 @@ struct ChainBuilderView: View {
                                             .disabled(viewModel.certificateFile == nil)
                                             .controlSize(.large)
                                         }
-                                    }
-                                }
-                            }
-                            
-                            // Private Key Card
-                            WorkflowCard(title: "Private Key", icon: "key", color: .purple) {
-                                VStack(alignment: .leading) {
-                                    if let key = viewModel.privateKeyFile {
-                                        HStack {
-                                            Image(systemName: "checkmark.circle.fill")
-                                                .foregroundColor(.green)
-                                            Text(key.lastPathComponent)
-                                                .font(.headline)
-                                        }
-                                        SecureField("Key Passphrase (Optional)", text: $viewModel.keyPassphrase)
-                                            .textFieldStyle(.roundedBorder)
-                                    } else {
-                                        Button(action: { viewModel.browsePrivateKey() }) {
-                                            VStack {
-                                                Image(systemName: "lock.doc")
-                                                    .font(.largeTitle)
-                                                Text("Select Private Key")
-                                            }
-                                            .frame(maxWidth: .infinity, minHeight: 80)
-                                            .background(Color.secondary.opacity(0.1))
-                                            .cornerRadius(8)
-                                        }
-                                        .buttonStyle(.plain)
-                                    }
-                                    
-                                    if viewModel.privateKeyFile != nil {
-                                        Button("Change") { viewModel.browsePrivateKey() }
-                                            .font(.caption)
-                                            .buttonStyle(.link)
-                                    }
-                                }
-                            }
-                            
-                            // Output PFX Card
-                            WorkflowCard(title: "Output PFX", icon: "shippingbox.fill", color: .pink) {
-                                VStack(spacing: 12) {
-                                    SecureField("PFX Password (Required)", text: $viewModel.pfxPassphrase)
-                                        .textFieldStyle(.roundedBorder)
-                                    
-                                    Button(action: { viewModel.createPFX() }) {
-                                        Label("Create PFX File", systemImage: "sparkles")
-                                            .frame(maxWidth: .infinity)
-                                    }
-                                    .buttonStyle(.borderedProminent)
-                                    .disabled(!viewModel.canCreatePFX)
-                                    .controlSize(.large)
-                                    
-                                    if viewModel.pfxCreated {
-                                        Text("PFX Created Successfully!")
-                                            .foregroundColor(.green)
-                                            .font(.caption)
-                                            .bold()
                                     }
                                 }
                             }
