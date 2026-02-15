@@ -104,8 +104,19 @@ else
 fi
 echo ""
 
-echo -e "${BLUE}📦 Step 6: Code signing...${NC}"
-# Ad-hoc sign the app (works without developer certificate)
+echo -e "${BLUE}📦 Step 6: Setting framework search path...${NC}"
+# Add rpath so the executable can find Sparkle.framework
+install_name_tool -add_rpath "@executable_path/../Frameworks" "${APP_BUNDLE}/Contents/MacOS/${EXECUTABLE_NAME}" 2>/dev/null || true
+echo -e "${GREEN}✓ Framework search path configured${NC}"
+echo ""
+
+echo -e "${BLUE}📦 Step 7: Code signing...${NC}"
+# Sign the framework first
+if [ -d "${APP_BUNDLE}/Contents/Frameworks/Sparkle.framework" ]; then
+    codesign --force --deep --sign - "${APP_BUNDLE}/Contents/Frameworks/Sparkle.framework"
+fi
+
+# Then sign the whole app bundle
 codesign --force --deep --sign - "${APP_BUNDLE}"
 
 if [ $? -eq 0 ]; then
@@ -115,7 +126,7 @@ else
 fi
 echo ""
 
-echo -e "${BLUE}📦 Step 7: Removing quarantine attributes...${NC}"
+echo -e "${BLUE}📦 Step 8: Removing quarantine attributes...${NC}"
 # Remove quarantine attribute that macOS adds
 xattr -cr "${APP_BUNDLE}" 2>/dev/null || true
 echo -e "${GREEN}✓ Quarantine attributes removed${NC}"
