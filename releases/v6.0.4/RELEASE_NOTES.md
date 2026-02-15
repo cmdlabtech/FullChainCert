@@ -2,30 +2,18 @@
 
 ## What's New
 
-### 🎉 Auto-Update System Fully Operational
-
-Version 6.0.4 completes the implementation of the Sparkle-based auto-update system. The app now automatically checks for updates and can install them with a single click.
+Auto-update system is now fully operational. The app automatically checks for updates and can install them with a single click.
 
 ## Bug Fixes
 
-- ✅ **Fixed critical crash:** Resolved "Library not loaded: @rpath/Sparkle.framework" crash on launch
-- 🔧 **Framework loading:** Added proper rpath configuration using install_name_tool
-- 🎯 **Update button:** "Check for Updates" button now fully functional and clickable
+- Fixed critical crash on launch
+- Check for Updates button now functional
 
 ## Improvements
 
-- ⚡️ Enhanced framework embedding process in build script
-- 🔐 Improved code signing sequence (framework signed before app bundle)
-- 📦 Sparkle.framework now properly embedded in app bundle
-- 🔄 Background update checks enabled (every 24 hours)
-- 🔔 Update notifications working correctly
-
-## Technical Changes
-
-- Added `@executable_path/../Frameworks` to rpath
-- Updated build.sh to handle framework embedding and signing
-- Re-enabled all Sparkle API calls in UpdaterViewModel
-- Updated Package.swift with Sparkle 2.8.1 dependency
+- Auto-update system enabled
+- Background update checks every 24 hours
+- Update notifications working
 
 ## Installation
 

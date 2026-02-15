@@ -15,11 +15,10 @@
             <description><![CDATA[
                 <h2>What's New in 6.0.4</h2>
                 <ul>
-                    <li>✅ Fixed Sparkle framework loading crash</li>
-                    <li>🔧 Added proper rpath for framework discovery</li>
-                    <li>🔔 Auto-update notifications now working</li>
-                    <li>⚡️ Improved code signing process</li>
-                    <li>🎯 "Check for Updates" button fully functional</li>
+                    <li>Fixed critical crash on launch</li>
+                    <li>Auto-update system now functional</li>
+                    <li>Check for Updates button working</li>
+                    <li>Background update checks enabled</li>
                 </ul>
             ]]></description>
             <pubDate>Fri, 14 Feb 2026 22:30:00 +0000</pubDate>
