@@ -15,15 +15,13 @@ let package = Package(
         )
     ],
     dependencies: [
-        // TODO: Re-enable after setting up proper Xcode project with framework embedding
-        // .package(url: "https://github.com/sparkle-project/Sparkle.git", from: "2.5.0")
+        .package(url: "https://github.com/sparkle-project/Sparkle.git", from: "2.5.0")
     ],
     targets: [
         .executableTarget(
             name: "AIOSSLTool",
             dependencies: [
-                // TODO: Re-enable after setting up proper Xcode project
-                // .product(name: "Sparkle", package: "Sparkle")
+                .product(name: "Sparkle", package: "Sparkle")
             ],
             path: ".",
             exclude: [

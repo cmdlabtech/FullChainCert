@@ -6,8 +6,7 @@
 //
 
 import SwiftUI
-// TODO: Re-enable after fixing framework embedding
-// import Sparkle
+import Sparkle
 
 final class UpdaterViewModel: ObservableObject {
     @Published var canCheckForUpdates = false
@@ -15,12 +14,9 @@ final class UpdaterViewModel: ObservableObject {
     @Published var automaticUpdateChecks = true
     @Published var automaticDownload = false
     
-    // TODO: Re-enable after fixing framework embedding
-    // private let updaterController: SPUStandardUpdaterController
+    private let updaterController: SPUStandardUpdaterController
     
     init() {
-        // TODO: Re-enable Sparkle after fixing framework embedding
-        /*
         // Initialize Sparkle updater
         updaterController = SPUStandardUpdaterController(
             startingUpdater: true,
@@ -31,7 +27,6 @@ final class UpdaterViewModel: ObservableObject {
         // Observe updater state
         updaterController.updater.publisher(for: \.canCheckForUpdates)
             .assign(to: &$canCheckForUpdates)
-        */
         
         // Load preferences
         loadPreferences()
@@ -40,16 +35,14 @@ final class UpdaterViewModel: ObservableObject {
     // MARK: - Update Actions
     
     func checkForUpdates() {
-        // TODO: Re-enable after fixing framework embedding
-        // updaterController.checkForUpdates(nil)
+        updaterController.checkForUpdates(nil)
         lastUpdateCheckDate = Date()
         savePreferences()
     }
     
     func checkForUpdatesInBackground() {
         if automaticUpdateChecks {
-            // TODO: Re-enable after fixing framework embedding
-            // updaterController.updater.checkForUpdatesInBackground()
+            updaterController.updater.checkForUpdatesInBackground()
             lastUpdateCheckDate = Date()
             savePreferences()
         }
@@ -59,15 +52,13 @@ final class UpdaterViewModel: ObservableObject {
     
     func toggleAutomaticUpdates() {
         automaticUpdateChecks.toggle()
-        // TODO: Re-enable after fixing framework embedding
-        // updaterController.updater.automaticallyChecksForUpdates = automaticUpdateChecks
+        updaterController.updater.automaticallyChecksForUpdates = automaticUpdateChecks
         savePreferences()
     }
     
     func toggleAutomaticDownload() {
         automaticDownload.toggle()
-        // TODO: Re-enable after fixing framework embedding
-        // updaterController.updater.automaticallyDownloadsUpdates = automaticDownload
+        updaterController.updater.automaticallyDownloadsUpdates = automaticDownload
         savePreferences()
     }
     
@@ -77,10 +68,9 @@ final class UpdaterViewModel: ObservableObject {
         automaticUpdateChecks = UserDefaults.standard.bool(forKey: "AutomaticUpdateChecks")
         automaticDownload = UserDefaults.standard.bool(forKey: "AutomaticDownload")
         
-        // TODO: Re-enable after fixing framework embedding
         // Apply to updater
-        // updaterController.updater.automaticallyChecksForUpdates = automaticUpdateChecks
-        // updaterController.updater.automaticallyDownloadsUpdates = automaticDownload
+        updaterController.updater.automaticallyChecksForUpdates = automaticUpdateChecks
+        updaterController.updater.automaticallyDownloadsUpdates = automaticDownload
         
         if let lastCheck = UserDefaults.standard.object(forKey: "LastUpdateCheckDate") as? Date {
             lastUpdateCheckDate = lastCheck

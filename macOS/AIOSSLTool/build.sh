@@ -80,7 +80,31 @@ fi
 echo -e "${GREEN}✓ App bundle created${NC}"
 echo ""
 
-echo -e "${BLUE}📦 Step 5: Code signing...${NC}"
+echo -e "${BLUE}📦 Step 5: Embedding Sparkle framework...${NC}"
+# Create Frameworks directory
+mkdir -p "${APP_BUNDLE}/Contents/Frameworks"
+
+# Find and copy Sparkle framework
+SPARKLE_FRAMEWORK="${BUILD_PATH}/Sparkle.framework"
+if [ -d "${SPARKLE_FRAMEWORK}" ]; then
+    cp -R "${SPARKLE_FRAMEWORK}" "${APP_BUNDLE}/Contents/Frameworks/"
+    echo -e "${GREEN}✓ Sparkle framework embedded${NC}"
+else
+    echo -e "${YELLOW}⚠️  Warning: Sparkle.framework not found at ${SPARKLE_FRAMEWORK}${NC}"
+    echo -e "${YELLOW}   Checking alternative locations...${NC}"
+    
+    # Try to find it in the checkouts directory
+    SPARKLE_CHECKOUT=$(find .build/checkouts -name "Sparkle.framework" -type d | head -n 1)
+    if [ -n "${SPARKLE_CHECKOUT}" ]; then
+        cp -R "${SPARKLE_CHECKOUT}" "${APP_BUNDLE}/Contents/Frameworks/"
+        echo -e "${GREEN}✓ Sparkle framework embedded from checkouts${NC}"
+    else
+        echo -e "${YELLOW}⚠️  Warning: Sparkle.framework not found. Auto-update may not work.${NC}"
+    fi
+fi
+echo ""
+
+echo -e "${BLUE}📦 Step 6: Code signing...${NC}"
 # Ad-hoc sign the app (works without developer certificate)
 codesign --force --deep --sign - "${APP_BUNDLE}"
 
@@ -91,7 +115,7 @@ else
 fi
 echo ""
 
-echo -e "${BLUE}📦 Step 6: Removing quarantine attributes...${NC}"
+echo -e "${BLUE}📦 Step 7: Removing quarantine attributes...${NC}"
 # Remove quarantine attribute that macOS adds
 xattr -cr "${APP_BUNDLE}" 2>/dev/null || true
 echo -e "${GREEN}✓ Quarantine attributes removed${NC}"
